@@ -29,3 +29,7 @@ footer {
 .subscriptions__form{
     margin-top: 100px;
 }
+.subscribers .btn{
+    padding: 0 7px;
+    margin-left: 30px;
+}
