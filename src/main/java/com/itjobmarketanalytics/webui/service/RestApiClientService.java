@@ -10,10 +10,12 @@ import com.itjobmarketanalytics.webui.dto.UserDto;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -44,7 +46,7 @@ public class RestApiClientService {
 
             int status = e.getStatusCode().value();
             String message = e.getResponseBodyAsString();
-            String messageResponse = null;
+            String messageResponse;
             try {
                 messageResponse = new Gson().fromJson(message, JsonObject.class).get("message").getAsString();
             } catch (JsonSyntaxException ex) {
@@ -74,7 +76,7 @@ public class RestApiClientService {
 
             int status = e.getStatusCode().value();
             String message = e.getResponseBodyAsString();
-            String messageResponse = null;
+            String messageResponse;
             try {
                 messageResponse = new Gson().fromJson(message, JsonObject.class).get("message").getAsString();
             } catch (JsonSyntaxException ex) {
@@ -90,7 +92,7 @@ public class RestApiClientService {
     }
 
     public UserDto getUser(String token) throws RestApiException {
-        String responseUserDto = null;
+        String responseUserDto;
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -102,7 +104,7 @@ public class RestApiClientService {
         } catch (HttpClientErrorException e) {
             int status = e.getStatusCode().value();
             String message = e.getResponseBodyAsString();
-            String messageResponse = null;
+            String messageResponse;
             try {
                 messageResponse = new Gson().fromJson(message, JsonObject.class).get("message").getAsString();
             } catch (JsonSyntaxException ex) {
@@ -114,7 +116,7 @@ public class RestApiClientService {
             throw new RestApiException(messageResponse);
         }
 
-        UserDto userDto = null;
+        UserDto userDto;
         try {
             userDto = new Gson().fromJson(responseUserDto, UserDto.class);
             log.info("Get userDto object -> {}", userDto);
