@@ -8,12 +8,10 @@ import com.itjobmarketanalytics.webui.dto.SignInResponseDto;
 import com.itjobmarketanalytics.webui.dto.SignUpDto;
 import com.itjobmarketanalytics.webui.dto.UserDto;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
+import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -31,89 +29,54 @@ public class RestApiClientService {
     @Value("${app.hostname}")
     String host;
 
-    private final String SING_IN = host + "/auth/signin";
-    private final String SING_UP = host + "/auth/signup";
-    private final String USER = host + "/user/";
+    private final String SING_IN = "/auth/signin";
+    private final String SING_UP = "/auth/signup";
+    private final String GET_USER = "/user/";
 
     public void signUp(SignUpDto dto) throws RestApiException {
+        String url = host + SING_UP;
+        log.info("Start request for signUp to {}", url);
 
         try {
-            log.info("Start request for signUp to {}", SING_UP);
-            restTemplate.postForEntity(SING_UP, dto, String.class);
+            restTemplate.postForEntity(url, dto, String.class);
             log.info("SignUp request DONE");
 
         } catch (HttpClientErrorException e) {
-
-            int status = e.getStatusCode().value();
-            String message = e.getResponseBodyAsString();
-            String messageResponse;
-            try {
-                messageResponse = new Gson().fromJson(message, JsonObject.class).get("message").getAsString();
-            } catch (JsonSyntaxException ex) {
-                messageResponse = "Something is wrong, try again later";
-            }
-
-            log.info("Response status code -> {}", status);
-            log.info("Exception message -> {}", messageResponse);
-
-            throw new RestApiException(messageResponse);
+            handleException(e);
         }
     }
 
     public SignInResponseDto signIn(SignInDto dto) throws RestApiException {
-        SignInResponseDto signInResponseDto;
+        SignInResponseDto signInResponseDto = null;
+        String url = host + SING_IN;
+        log.info("Start request for signIn to {}", url);
+
         try {
             HttpEntity<SignInDto> request = new HttpEntity<>(dto);
-            log.info("Start request for signIn to {}", SING_IN);
-
-            String jsonResponseDto = restTemplate.exchange(SING_IN, HttpMethod.POST, request, String.class).getBody();
-            signInResponseDto = new Gson().fromJson(jsonResponseDto, SignInResponseDto.class);
-
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+            signInResponseDto = new Gson().fromJson(response.getBody(), SignInResponseDto.class);
             log.info("SignIn request DONE");
-            log.info("UserDto -> {}", signInResponseDto);
 
         } catch (HttpClientErrorException e) {
-
-            int status = e.getStatusCode().value();
-            String message = e.getResponseBodyAsString();
-            String messageResponse;
-            try {
-                messageResponse = new Gson().fromJson(message, JsonObject.class).get("message").getAsString();
-            } catch (JsonSyntaxException ex) {
-                messageResponse = "Something is wrong, try again later";
-            }
-
-            log.info("Response status code -> {}", status);
-            log.info("Exception message -> {}", messageResponse);
-
-            throw new RestApiException(messageResponse);
+            handleException(e);
         }
         return signInResponseDto;
     }
 
     public UserDto getUser(String token) throws RestApiException {
-        String responseUserDto;
+        String url = host + GET_USER;
+        log.info("Start request for getUser to {}", url);
+        String responseUserDto = null;
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + token);
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            responseUserDto = restTemplate.exchange(USER, HttpMethod.GET, entity, String.class).getBody();
+            responseUserDto = restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
             log.info("Get user by Auth -> {}", responseUserDto);
 
         } catch (HttpClientErrorException e) {
-            int status = e.getStatusCode().value();
-            String message = e.getResponseBodyAsString();
-            String messageResponse;
-            try {
-                messageResponse = new Gson().fromJson(message, JsonObject.class).get("message").getAsString();
-            } catch (JsonSyntaxException ex) {
-                messageResponse = "Something is wrong, try again later";
-            }
-
-            log.info("Response status code -> {}", status);
-            log.info("Exception message -> {}", messageResponse);
-            throw new RestApiException(messageResponse);
+            handleException(e);
         }
 
         UserDto userDto;
@@ -126,5 +89,31 @@ public class RestApiClientService {
 
         }
         return userDto;
+    }
+
+    private void handleException(HttpClientErrorException e) throws RestApiException {
+
+        if (isUnauthorized(e)){
+            throw new RestApiUnauthorizedException("Wrong password");
+        }
+
+        String responseMessage = e.getResponseBodyAsString();
+        String exceptionMessage;
+        try {
+            exceptionMessage = getResponseMessageValue(responseMessage);
+        } catch (JsonSyntaxException ex) {
+            exceptionMessage = "Something is wrong, try again later";
+        }
+        log.info("Exception message -> {} ; status code -> {}", exceptionMessage, e.getStatusCode());
+
+        throw new RestApiException(exceptionMessage);
+    }
+
+    private String getResponseMessageValue(String responseMessage) {
+        return new Gson().fromJson(responseMessage, JsonObject.class).get("message").getAsString();
+    }
+
+    private boolean isUnauthorized(HttpClientErrorException e) {
+        return e.getStatusCode().equals(HttpStatus.UNAUTHORIZED);
     }
 }

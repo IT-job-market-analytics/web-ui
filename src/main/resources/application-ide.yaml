@@ -4,3 +4,6 @@ app:
 spring:
   thymeleaf:
     check-template-location: false
+
+server:
+  port: 8082
