@@ -9,11 +9,13 @@ import com.itjobmarketanalytics.webui.dto.SignUpDto;
 import com.itjobmarketanalytics.webui.dto.UserDto;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
+import com.itjobmarketanalytics.webui.exception.RestApiUnknownException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -40,7 +42,6 @@ public class RestApiClientService {
         try {
             restTemplate.postForEntity(url, dto, String.class);
             log.info("SignUp request DONE");
-
         } catch (HttpClientErrorException e) {
             handleException(e);
         }
@@ -56,7 +57,6 @@ public class RestApiClientService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
             signInResponseDto = new Gson().fromJson(response.getBody(), SignInResponseDto.class);
             log.info("SignIn request DONE");
-
         } catch (HttpClientErrorException e) {
             handleException(e);
         }
@@ -66,35 +66,39 @@ public class RestApiClientService {
     public UserDto getUser(String token) throws RestApiException {
         String url = host + GET_USER;
         log.info("Start request for getUser to {}", url);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         String responseUserDto = null;
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "Bearer " + token);
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            responseUserDto = restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
-            log.info("Get user by Auth -> {}", responseUserDto);
-
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            responseUserDto = responseEntity.getBody();
         } catch (HttpClientErrorException e) {
             handleException(e);
+        } catch (HttpServerErrorException e) {
+            throw new RestApiUnknownException("Unknown error");
         }
 
         UserDto userDto;
         try {
             userDto = new Gson().fromJson(responseUserDto, UserDto.class);
-            log.info("Get userDto object -> {}", userDto);
         } catch (JsonSyntaxException e) {
-            String messageResponse = "Something is wrong, try again later";
-            throw new RestApiException(messageResponse);
-
+            throw new RestApiUnknownException("Unknown error");
         }
         return userDto;
     }
 
     private void handleException(HttpClientErrorException e) throws RestApiException {
 
-        if (isUnauthorized(e)){
+        if (isUnauthorized(e)) {
             throw new RestApiUnauthorizedException("Wrong password");
+        }
+
+        if (isUnknown(e)) {
+            throw new RestApiUnknownException("Unknown error");
         }
 
         String responseMessage = e.getResponseBodyAsString();
@@ -102,7 +106,7 @@ public class RestApiClientService {
         try {
             exceptionMessage = getResponseMessageValue(responseMessage);
         } catch (JsonSyntaxException ex) {
-            exceptionMessage = "Something is wrong, try again later";
+            exceptionMessage = "Unknown error";
         }
         log.info("Exception message -> {} ; status code -> {}", exceptionMessage, e.getStatusCode());
 
@@ -115,5 +119,9 @@ public class RestApiClientService {
 
     private boolean isUnauthorized(HttpClientErrorException e) {
         return e.getStatusCode().equals(HttpStatus.UNAUTHORIZED);
+    }
+
+    private boolean isUnknown(HttpClientErrorException e) {
+        return e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
