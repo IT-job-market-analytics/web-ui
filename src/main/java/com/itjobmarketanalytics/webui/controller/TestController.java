@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/test")
 public class TestController {
-
     private final RestApiClientService restApiClientService;
 
     public TestController(RestApiClientService restApiClientService) {
@@ -24,14 +23,16 @@ public class TestController {
     @GetMapping(value = {"/sign-in"})
     public SignInResponseDto signIn(
             @RequestParam String username,
-            @RequestParam String password) throws RestApiException {
+            @RequestParam String password
+    ) throws RestApiException {
         return restApiClientService.signIn(new SignInDto(username, password));
     }
 
     @GetMapping(value = {"/sign-up"})
     public void signUp(
             @RequestParam String username,
-            @RequestParam String password) throws RestApiException {
+            @RequestParam String password
+    ) throws RestApiException {
         restApiClientService.signUp(new SignUpDto(username, password));
     }
 

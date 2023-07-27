@@ -21,107 +21,91 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @Slf4j
 public class RestApiClientService {
-
     RestTemplate restTemplate;
 
     public RestApiClientService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    private static final Gson gson = new Gson();
+
     @Value("${app.hostname}")
     String host;
 
-    private final String SING_IN = "/auth/signin";
-    private final String SING_UP = "/auth/signup";
-    private final String GET_USER = "/user/";
+    private static final String SING_IN = "/auth/signin";
+    private static final String SING_UP = "/auth/signup";
+    private static final String GET_USER = "/user/";
 
     public void signUp(SignUpDto dto) throws RestApiException {
         String url = host + SING_UP;
-        log.info("Start request for signUp to {}", url);
 
         try {
             restTemplate.postForEntity(url, dto, String.class);
-            log.info("SignUp request DONE");
+            log.debug("Sign up request successfully executed");
         } catch (HttpClientErrorException e) {
-            handleException(e);
+            throw convertException(e);
         }
     }
 
     public SignInResponseDto signIn(SignInDto dto) throws RestApiException {
-        SignInResponseDto signInResponseDto = null;
         String url = host + SING_IN;
-        log.info("Start request for signIn to {}", url);
 
         try {
             HttpEntity<SignInDto> request = new HttpEntity<>(dto);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-            signInResponseDto = new Gson().fromJson(response.getBody(), SignInResponseDto.class);
-            log.info("SignIn request DONE");
+            ResponseEntity<SignInResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, request, SignInResponseDto.class);
+
+            log.debug("Sign in request successfully executed");
+
+            return response.getBody();
         } catch (HttpClientErrorException e) {
-            handleException(e);
+            throw convertException(e);
         }
-        return signInResponseDto;
     }
 
     public UserDto getUser(String token) throws RestApiException {
         String url = host + GET_USER;
-        log.info("Start request for getUser to {}", url);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String responseUserDto = null;
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-            responseUserDto = responseEntity.getBody();
+            ResponseEntity<UserDto> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
+            return responseEntity.getBody();
         } catch (HttpClientErrorException e) {
-            handleException(e);
-        } catch (HttpServerErrorException e) {
-            throw new RestApiUnknownException("Unknown error");
+            throw convertException(e);
         }
-
-        UserDto userDto;
-        try {
-            userDto = new Gson().fromJson(responseUserDto, UserDto.class);
-        } catch (JsonSyntaxException e) {
-            throw new RestApiUnknownException("Unknown error");
-        }
-        return userDto;
     }
 
-    private void handleException(HttpClientErrorException e) throws RestApiException {
-
-        if (isUnauthorized(e)) {
-            throw new RestApiUnauthorizedException("Wrong password");
+    private RestApiException convertException(Exception e) {
+        if (e instanceof HttpServerErrorException) {
+            return new RestApiUnknownException("Unknown error");
         }
 
-        if (isUnknown(e)) {
-            throw new RestApiUnknownException("Unknown error");
+        if (!(e instanceof HttpClientErrorException clientException)) {
+            return new RestApiUnknownException("Unknown error");
         }
 
-        String responseMessage = e.getResponseBodyAsString();
+        if (clientException instanceof HttpClientErrorException.Unauthorized) {
+            return new RestApiUnauthorizedException("Wrong password");
+        } else if (clientException.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+            return new RestApiUnknownException("Unknown error");
+        }
+
+        String responseMessage = clientException.getResponseBodyAsString();
         String exceptionMessage;
         try {
             exceptionMessage = getResponseMessageValue(responseMessage);
         } catch (JsonSyntaxException ex) {
             exceptionMessage = "Unknown error";
         }
-        log.info("Exception message -> {} ; status code -> {}", exceptionMessage, e.getStatusCode());
+        log.info("Exception message -> {} ; status code -> {}", exceptionMessage, clientException.getStatusCode());
 
-        throw new RestApiException(exceptionMessage);
+        return new RestApiException(exceptionMessage);
     }
 
     private String getResponseMessageValue(String responseMessage) {
-        return new Gson().fromJson(responseMessage, JsonObject.class).get("message").getAsString();
-    }
-
-    private boolean isUnauthorized(HttpClientErrorException e) {
-        return e.getStatusCode().equals(HttpStatus.UNAUTHORIZED);
-    }
-
-    private boolean isUnknown(HttpClientErrorException e) {
-        return e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR);
+        return gson.fromJson(responseMessage, JsonObject.class).get("message").getAsString();
     }
 }
