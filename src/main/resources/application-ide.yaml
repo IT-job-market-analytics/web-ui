@@ -1,0 +1,9 @@
+app:
+  hostname: http://localhost:8080
+
+spring:
+  thymeleaf:
+    check-template-location: false
+
+server:
+  port: 8082
