@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+html,
+body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+.wrapper {
+    flex: 1 0 auto;
+
+}
+footer {
+    flex: 0 0 auto;
+    padding: 15px 0;
+}
+.navbar *{
+    color: #fff !important;
+}
+.signIn{
+    padding: 100px 0;
+}
+.profile{
+    padding: 100px 0;
+}
+.subscriptions__form{
+    margin-top: 100px;
+}
+.subscribers .btn{
+    padding: 0 7px;
+    margin-left: 30px;
+}
