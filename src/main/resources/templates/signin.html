@@ -12,7 +12,7 @@
   <h1 class="text-center">Sign In</h1>
   <form method="post" th:action="@{/sign-in}" th:object="${user}">
     <div class="col-sm-4 m-auto">
-      <input type="email" class="form-control mb-3" placeholder="Email" th:field="*{username}">
+      <input type="text" class="form-control mb-3" placeholder="Username" th:field="*{username}">
       <input type="password" class="form-control mb-3" placeholder="Password" th:field="*{password}">
       <div class="alert alert-danger small p-2" role="alert" th:if="${errorMessage}"><span th:text="${errorMessage}"/></div>
       <div class="text-center">
