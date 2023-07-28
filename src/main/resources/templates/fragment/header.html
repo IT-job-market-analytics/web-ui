@@ -8,11 +8,15 @@
     <link href="/css/styles.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<header th:fragment="header">
+<header th:fragment="header (username)">
     <nav class="navbar bg-dark">
         <div class="container">
             <a class="navbar-brand" href="/">IT Job</a>
-            <div>
+            <div th:if="${username}">
+                <a class="btn btn-outline" href="/user">Hi, <span th:text="${username}"/></a>
+                <a class="btn btn-outline" href="#">Logout</a>
+            </div>
+            <div th:unless="${username}">
                 <a class="btn btn-outline" href="/sign-in">Sign In</a>
                 <a class="btn btn-outline" href="/sign-up">Sign Up</a>
             </div>

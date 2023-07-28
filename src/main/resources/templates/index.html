@@ -8,7 +8,7 @@
   <link href="/css/styles.css" rel="stylesheet" type="text/css" >
 </head>
 <body>
-<header th:replace="~{fragment/header :: header}"></header>
+<header th:replace="~{fragment/header :: header (username=${username})}"></header>
 <section class="wrapper">
   <div class="container">Content</div>
 </section>
