@@ -1,8 +1,10 @@
 package com.itjobmarketanalytics.webui.controller;
 
 import com.itjobmarketanalytics.webui.dto.SignInDto;
+import com.itjobmarketanalytics.webui.dto.SignInResponseDto;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.service.RestApiClientService;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,10 +31,11 @@ public class SignInController {
     }
 
     @PostMapping("/sign-in")
-    public String submitSignInForm(@ModelAttribute("user") SignInDto signInDto, Model model) {
+    public String submitSignInForm(@ModelAttribute("user") SignInDto signInDto, Model model, HttpSession session) {
 
         try {
-            service.signIn(signInDto);
+            SignInResponseDto dto = service.signIn(signInDto);
+            session.setAttribute("accessToken", dto.getAccessToken());
         } catch (RestApiException e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "signin";
