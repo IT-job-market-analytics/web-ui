@@ -8,7 +8,7 @@
   <link href="/css/styles.css" rel="stylesheet" type="text/css" >
 </head>
 <body>
-<header th:replace="~{fragment/header :: header (username=${username})}"></header>
+<header th:replace="~{fragment/header :: header (isLoggedIn=${isLoggedIn}, username=${username})}"></header>
 <section class="wrapper">
   <div class="alert alert-danger small p-2" role="alert" th:if="${errorMessage}"><span th:text="${errorMessage}"/></div>
   <div class="container">Content</div>
