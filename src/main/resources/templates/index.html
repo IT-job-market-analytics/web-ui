@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IT job market analytics</title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" >
+  <link href="/css/styles.css" rel="stylesheet" type="text/css" >
+</head>
+<body>
+<header th:replace="~{fragment/header :: header (isLoggedIn=${isLoggedIn}, username=${username})}"></header>
+<section class="wrapper">
+  <div class="alert alert-danger small p-2" role="alert" th:if="${errorMessage}"><span th:text="${errorMessage}"/></div>
+  <div class="container">Content</div>
+</section>
+<footer th:replace="~{fragment/footer :: footer}"></footer>
+</body>
+</html>

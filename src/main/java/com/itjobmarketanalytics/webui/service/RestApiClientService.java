@@ -2,7 +2,6 @@ package com.itjobmarketanalytics.webui.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.itjobmarketanalytics.webui.dto.SignInDto;
 import com.itjobmarketanalytics.webui.dto.SignInResponseDto;
 import com.itjobmarketanalytics.webui.dto.SignUpDto;
@@ -52,7 +51,9 @@ public class RestApiClientService {
 
         try {
             HttpEntity<SignInDto> request = new HttpEntity<>(dto);
-            ResponseEntity<SignInResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, request, SignInResponseDto.class);
+            ResponseEntity<SignInResponseDto> response = restTemplate.exchange(
+                    url, HttpMethod.POST, request, SignInResponseDto.class
+            );
 
             log.debug("Sign in request successfully executed");
 
@@ -67,13 +68,15 @@ public class RestApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + token);
+        if (token != null) {
+            headers.set("Authorization", "Bearer " + token);
+        }
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
             ResponseEntity<UserDto> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
             return responseEntity.getBody();
-        } catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             throw convertException(e);
         }
     }
@@ -88,18 +91,14 @@ public class RestApiClientService {
         }
 
         if (clientException instanceof HttpClientErrorException.Unauthorized) {
-            return new RestApiUnauthorizedException("Wrong password");
+            String exceptionMessage = extractErrorMessage(clientException, "Unauthorized");
+
+            return new RestApiUnauthorizedException(exceptionMessage);
         } else if (clientException.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
             return new RestApiUnknownException("Unknown error");
         }
 
-        String responseMessage = clientException.getResponseBodyAsString();
-        String exceptionMessage;
-        try {
-            exceptionMessage = getResponseMessageValue(responseMessage);
-        } catch (JsonSyntaxException ex) {
-            exceptionMessage = "Unknown error";
-        }
+        String exceptionMessage = extractErrorMessage(clientException, "Unknown error");
         log.info("Exception message -> {} ; status code -> {}", exceptionMessage, clientException.getStatusCode());
 
         return new RestApiException(exceptionMessage);
@@ -107,5 +106,14 @@ public class RestApiClientService {
 
     private String getResponseMessageValue(String responseMessage) {
         return gson.fromJson(responseMessage, JsonObject.class).get("message").getAsString();
+    }
+
+    private String extractErrorMessage(HttpClientErrorException exception, String defaultMessage) {
+        String responseMessage = exception.getResponseBodyAsString();
+        try {
+            return getResponseMessageValue(responseMessage);
+        } catch (Exception ex) {
+            return defaultMessage;
+        }
     }
 }
