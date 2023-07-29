@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.io.IOException;
+
 @Controller
 @Slf4j
 public class HomePageController {
@@ -22,16 +24,12 @@ public class HomePageController {
 
     @GetMapping("/")
     public String homeView(Model model, HttpSession session) {
-        log.info("Access token -> {}", session.getAttribute("accessToken"));
 
         try {
             UserDto userDto = service.getUser((String) session.getAttribute("accessToken"));
-            log.info("Username -> {}", userDto.getUsername());
             model.addAttribute("username", userDto.getUsername());
         } catch (RestApiException e) {
-            log.info("I can catch RestApiException");
-        } catch (HttpServerErrorException e) {
-            log.info("I can catch error 500");
+            model.addAttribute("errorMessage", e.getMessage());
         }
 
         return "index";

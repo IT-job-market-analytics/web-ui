@@ -10,6 +10,7 @@
 <body>
 <header th:replace="~{fragment/header :: header (username=${username})}"></header>
 <section class="wrapper">
+  <div class="alert alert-danger small p-2" role="alert" th:if="${errorMessage}"><span th:text="${errorMessage}"/></div>
   <div class="container">Content</div>
 </section>
 <footer th:replace="~{fragment/footer :: footer}"></footer>

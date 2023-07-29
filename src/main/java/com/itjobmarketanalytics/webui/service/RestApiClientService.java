@@ -73,7 +73,7 @@ public class RestApiClientService {
         try {
             ResponseEntity<UserDto> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
             return responseEntity.getBody();
-        } catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             throw convertException(e);
         }
     }
