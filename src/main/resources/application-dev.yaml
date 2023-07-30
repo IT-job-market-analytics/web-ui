@@ -1,0 +1,2 @@
+app:
+  hostname: http://rest-api:8080
