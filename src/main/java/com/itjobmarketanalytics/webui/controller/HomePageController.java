@@ -21,6 +21,13 @@ public class HomePageController {
 
     @GetMapping("/")
     public String homeView(Model model, HttpSession session) {
+
+        try {
+            model.addAttribute("analyticsQueryData", service.analyticsByQuery());
+        } catch (RestApiException e){
+            model.addAttribute("errorMessage", e.getMessage());
+        }
+
         boolean isLoggedIn = true;
         try {
             UserDto userDto = service.getUser((String) session.getAttribute("accessToken"));

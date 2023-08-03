@@ -11,8 +11,78 @@
 <header th:replace="~{fragment/header :: header (isLoggedIn=${isLoggedIn}, username=${username})}"></header>
 <section class="wrapper">
   <div class="alert alert-danger small p-2" role="alert" th:if="${errorMessage}"><span th:text="${errorMessage}"/></div>
-  <div class="container">Content</div>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-sm-12 col-md-6">
+        <h4>Количество вакансий</h4>
+        <canvas id="numberOfVacancy"></canvas>
+      </div>
+      <div class="col-sm-12 col-md-6">
+        <h4>Средняя зарплата</h4>
+        <canvas id="averageSalary"></canvas>
+      </div>
+    </div>
+  </div>
 </section>
 <footer th:replace="~{fragment/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+  const queries =[];
+  const vacancyCount =[];
+  const averageSalaryData =[];
+  /*<![CDATA[*/
+  /*[# th:each="q: ${analyticsQueryData}"]*/
+  queries.push([[${q.getQuery()}]]);
+  vacancyCount.push([[${q.getVacancyCount()}]]);
+  averageSalaryData.push([[${q.getAverageSalary()}]]);
+  /*[/]*/
+  /*]]>*/
+</script>
+
+
+<script>
+  const ctx = document.getElementById('numberOfVacancy');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: queries,
+      datasets: [{
+        label: 'Number of vacancies',
+        data: vacancyCount,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  const averageSalary = document.getElementById('averageSalary');
+  new Chart(averageSalary, {
+    type: 'bar',
+    data: {
+      labels: queries,
+      datasets: [{
+        label: 'Average Salary',
+        data: averageSalaryData,
+        borderWidth: 1,
+        backgroundColor: ['rgba(75, 192, 192, 0.2)']
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
 </body>
 </html>

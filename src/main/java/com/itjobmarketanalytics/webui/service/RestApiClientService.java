@@ -6,16 +6,20 @@ import com.itjobmarketanalytics.webui.dto.SignInDto;
 import com.itjobmarketanalytics.webui.dto.SignInResponseDto;
 import com.itjobmarketanalytics.webui.dto.SignUpDto;
 import com.itjobmarketanalytics.webui.dto.UserDto;
+import com.itjobmarketanalytics.webui.dto.analytics.QueryData;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnknownException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -34,6 +38,9 @@ public class RestApiClientService {
     private static final String SING_IN = "/auth/signin";
     private static final String SING_UP = "/auth/signup";
     private static final String GET_USER = "/user/";
+
+    private static final String ANALYTICS_BY_QUERY = "/analytics/byQuery";
+
 
     public void signUp(SignUpDto dto) throws RestApiException {
         String url = host + SING_UP;
@@ -77,6 +84,19 @@ public class RestApiClientService {
             ResponseEntity<UserDto> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw convertException(e);
+        }
+    }
+
+    public List<QueryData> analyticsByQuery() throws RestApiException {
+        String url = host + ANALYTICS_BY_QUERY;
+        try {
+            ResponseEntity<List<QueryData>> rateResponse =
+                    restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<QueryData>>() {
+                    });
+
+            return rateResponse.getBody();
+        } catch (HttpClientErrorException e) {
             throw convertException(e);
         }
     }
