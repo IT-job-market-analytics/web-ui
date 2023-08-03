@@ -17,7 +17,7 @@
             <form method="post" th:action="@{/profile/editUser}" th:object="${updateUser}">
                 <div class="col-sm-4 m-auto text-center">
                     <input type="text" class="form-control mb-3" th:value="${username}" disabled>
-                    <input type="tel" maxlength="19" class="form-control mb-3" placeholder="Telegram chat id" th:field="*{telegramChatId}">
+                    <input type="tel" th:value="${telegramChatId}" maxlength="19" class="form-control mb-3" placeholder="Telegram chat id" th:field="*{telegramChatId}">
                     <div th:if="${updateMessage}" th:text="${updateMessage}" th:class="${'alert p-1 ps-2 mt-1 ' + updateAlertClass}"/>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>

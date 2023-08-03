@@ -33,8 +33,10 @@ public class ProfileController {
         String token = (String) session.getAttribute("accessToken");
         try {
             UserDto userDto = service.getUser((String) session.getAttribute("accessToken"));
+
+            UserDto user = service.getUser(token);
             model.addAttribute("username", userDto.getUsername());
-            model.addAttribute("updateUser", new UserUpdateDto());
+            model.addAttribute("updateUser", new UserUpdateDto(user.getTelegramChatId()));
 
             List<UserSubscriptionsDto> availableSubscriptions = service.getAvailableSubscriptions(token);
             model.addAttribute("availableSubscriptions", availableSubscriptions);
@@ -43,8 +45,6 @@ public class ProfileController {
             List<UserSubscriptionsDto> currentSubscriptions = service.getCurrentSubscriptions(token);
             model.addAttribute("currentSubscriptions", currentSubscriptions);
             model.addAttribute("removeSubscription", new UserSubscriptionsDto());
-
-
         } catch (RestApiException e) {
             if (e instanceof RestApiUnauthorizedException) {
                 return "redirect:/sign-in";
