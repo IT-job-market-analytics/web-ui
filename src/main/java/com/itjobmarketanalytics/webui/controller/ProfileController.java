@@ -98,8 +98,6 @@ public class ProfileController {
                                                 RedirectAttributes redirectAttributes) {
         try {
             service.addSubscriptions(addSubscription.getQuery(), (String) session.getAttribute("accessToken"));
-            redirectAttributes.addFlashAttribute("addMessage", "Successfully added");
-            redirectAttributes.addFlashAttribute("addAlertClass", "alert-success");
         } catch (RestApiException e) {
             if (e instanceof RestApiUnauthorizedException) {
                 return "redirect:/sign-in";
@@ -119,9 +117,6 @@ public class ProfileController {
                                                     RedirectAttributes redirectAttributes) {
         try {
             service.removeSubscriptions(removeSubscription.getQuery(), (String) session.getAttribute("accessToken"));
-            redirectAttributes.addFlashAttribute("removeMessage", "Successfully removed");
-            redirectAttributes.addFlashAttribute("removeAlertClass", "alert-success");
-
         } catch (RestApiException e) {
             if (e instanceof RestApiUnauthorizedException) {
                 return "redirect:/sign-in";
