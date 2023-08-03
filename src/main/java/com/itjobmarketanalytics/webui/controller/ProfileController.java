@@ -59,12 +59,11 @@ public class ProfileController {
     @PostMapping("/profile/editUser")
     public String updateUserInForm(
             @ModelAttribute("updateUser")   UserUpdateDto userUpdateDto,
-                                            Model model,
                                             HttpSession session,
                                             RedirectAttributes redirectAttributes) {
 
         try {
-            UserDto userDto = service.updateUser(userUpdateDto.getTelegramChatId(), (String)session.getAttribute("accessToken"));
+            service.updateUser(userUpdateDto.getTelegramChatId(), (String)session.getAttribute("accessToken"));
             redirectAttributes.addFlashAttribute("updateMessage", "Successfully updated");
             redirectAttributes.addFlashAttribute("updateAlertClass", "alert-success");
         } catch (RestApiException e) {
@@ -103,7 +102,6 @@ public class ProfileController {
     @PostMapping("/profile/removeSubscription")
     public String removeSubscription(
             @ModelAttribute("removeSubscription")   UserSubscriptionsDto removeSubscription,
-                                                    Model model,
                                                     HttpSession session,
                                                     RedirectAttributes redirectAttributes) {
         try {
