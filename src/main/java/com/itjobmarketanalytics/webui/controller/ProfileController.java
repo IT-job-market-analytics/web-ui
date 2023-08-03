@@ -42,10 +42,12 @@ public class ProfileController {
             model.addAttribute("updateUser", new UserUpdateDto(user.getTelegramChatId()));
 
             List<UserSubscriptionsDto> availableSubscriptions = service.getAvailableSubscriptions(token);
+            List<UserSubscriptionsDto> currentSubscriptions = service.getCurrentSubscriptions(token);
+            availableSubscriptions.removeAll(currentSubscriptions);
+
             model.addAttribute("availableSubscriptions", availableSubscriptions);
             model.addAttribute("addSubscription", new UserSubscriptionsDto());
 
-            List<UserSubscriptionsDto> currentSubscriptions = service.getCurrentSubscriptions(token);
             model.addAttribute("currentSubscriptions", currentSubscriptions);
             model.addAttribute("removeSubscription", new UserSubscriptionsDto());
         } catch (RestApiException e) {
