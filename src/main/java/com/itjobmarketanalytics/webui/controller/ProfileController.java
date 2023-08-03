@@ -7,9 +7,12 @@ import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
 import com.itjobmarketanalytics.webui.service.RestApiClientService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,10 +60,20 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/editUser")
-    public String updateUserInForm(
-            @ModelAttribute("updateUser")   UserUpdateDto userUpdateDto,
-                                            HttpSession session,
-                                            RedirectAttributes redirectAttributes) {
+    public String handleUserUpdate(
+            @Valid @ModelAttribute("updateUser")
+            UserUpdateDto userUpdateDto,
+            BindingResult errors,
+
+            HttpSession session, RedirectAttributes redirectAttributes
+    ) {
+        if (errors.hasErrors()) {
+            ObjectError objectError = errors.getAllErrors().get(0);
+
+            redirectAttributes.addFlashAttribute("updateMessage", objectError.getDefaultMessage());
+            redirectAttributes.addFlashAttribute("updateAlertClass", "alert-danger");
+            return "redirect:/profile";
+        }
 
         try {
             service.updateUser(userUpdateDto.getTelegramChatId(), (String)session.getAttribute("accessToken"));
