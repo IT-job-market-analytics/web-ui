@@ -3,6 +3,7 @@ package com.itjobmarketanalytics.webui.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.itjobmarketanalytics.webui.dto.*;
+import com.itjobmarketanalytics.webui.dto.analytics.QueryData;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnknownException;
@@ -36,6 +37,9 @@ public class RestApiClientService {
     private static final String USER = "/user/";
     private static final String CURRENT_SUBSCRIPTIONS = "/subscriptions";
     private static final String AVAILABLE_SUBSCRIPTIONS = "/subscriptions/allAvailable";
+
+
+    private static final String ANALYTICS_BY_QUERY = "/analytics/byQuery";
 
 
     public void signUp(SignUpDto dto) throws RestApiException {
@@ -80,6 +84,19 @@ public class RestApiClientService {
             ResponseEntity<UserDto> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw convertException(e);
+        }
+    }
+
+    public List<QueryData> analyticsByQuery() throws RestApiException {
+        String url = host + ANALYTICS_BY_QUERY;
+        try {
+            ResponseEntity<List<QueryData>> rateResponse =
+                    restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<QueryData>>() {
+                    });
+
+            return rateResponse.getBody();
+        } catch (HttpClientErrorException e) {
             throw convertException(e);
         }
     }
@@ -195,7 +212,6 @@ public class RestApiClientService {
             throw convertException(e);
         }
     }
-
 
     private RestApiException convertException(Exception e) {
         if (e instanceof HttpServerErrorException) {
