@@ -19,9 +19,9 @@ public class AnalyticsRestController {
     }
 
     @GetMapping("/average-salary/{query}")
-    public List<AverageSalaryData> averageSalary(@PathVariable String query, @RequestParam("depth") String depth) {
+    public List<AverageSalaryData> averageSalary(@PathVariable String query) {
         try {
-            return service.averageSalaryByQuery(query, depth);
+            return service.averageSalaryByQuery(query);
         } catch (RestApiException e) {
             return Collections.emptyList();
         }

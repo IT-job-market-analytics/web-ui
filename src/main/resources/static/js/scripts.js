@@ -42,8 +42,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
     });
 
 
-    function getAverageSalary(query, depth) {
-        const url = `/analytics/average-salary/${query}?depth=${depth}`;
+    function getAverageSalary(query) {
+        const url = `/analytics/average-salary/${query}`;
 
         fetch(url)
             .then((response) => {
@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 return response.json();
             })
             .then((data) => {
+                console.log(data)
                 const dates = data.map((item) => item.date)
                 const salaries = data.map((item) => item.salary)
                 averageSalaryChart(dates, salaries)
@@ -85,5 +86,5 @@ document.addEventListener("DOMContentLoaded", function (event) {
         });
     }
 
-    getAverageSalary("Java", 30)
+    getAverageSalary("Java")
 });

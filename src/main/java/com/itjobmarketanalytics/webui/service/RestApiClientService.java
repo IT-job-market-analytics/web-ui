@@ -256,12 +256,12 @@ public class RestApiClientService {
         }
     }
 
-    public List<AverageSalaryData> averageSalaryByQuery(String query, String depth) throws RestApiException {
+    public List<AverageSalaryData> averageSalaryByQuery(String query) throws RestApiException {
         String url = host + AVERAGE_SALARY_BY_QUERY + query;
 
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(url)
-                .queryParam("depth", depth);
+                .queryParam("depth", 30);
         try {
             ResponseEntity<List<AverageSalaryData>> rateResponse =
                     restTemplate.exchange(
