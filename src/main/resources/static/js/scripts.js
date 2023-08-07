@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
                 const dates = data.map((item) => item.date)
                 const salaries = data.map((item) => item.salary)
                 averageSalaryChart(dates, salaries)
@@ -63,9 +62,16 @@ document.addEventListener("DOMContentLoaded", function (event) {
             });
     }
 
+    let averageSalaryChartInstance;
+
     function averageSalaryChart(averageSalaryDates, averageSalaryArray) {
         const averageSalaryByQuery = document.getElementById('averageSalaryByQuery');
-        new Chart(averageSalaryByQuery, {
+
+        if (averageSalaryChartInstance) {
+            averageSalaryChartInstance.destroy();
+        }
+
+        averageSalaryChartInstance = new Chart(averageSalaryByQuery, {
             type: 'bar',
             data: {
                 labels: averageSalaryDates,
@@ -84,7 +90,57 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 }
             }
         });
+
     }
 
-    getAverageSalary("Java")
+
+    function getAllAvailable(){
+        const url = `/analytics/allAvailable`;
+
+        fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const selectElement = document.createElement("select");
+                selectElement.setAttribute("id", "querySelect");
+
+                const optionElementDef = document.createElement("option");
+                optionElementDef.setAttribute("value", "");
+                optionElementDef.textContent = "Выбрать...";
+                optionElementDef.setAttribute("disabled", "disabled");
+                optionElementDef.setAttribute("selected", "selected");
+                selectElement.appendChild(optionElementDef);
+
+                data.forEach((item) => {
+                    const optionElement = document.createElement("option");
+                    optionElement.setAttribute("value", item.query);
+                    optionElement.textContent = item.query;
+                    selectElement.appendChild(optionElement);
+                });
+
+                const container = document.getElementById("allAvailableContainer");
+                container.appendChild(selectElement);
+
+                addSelectEventHandler(selectElement);
+
+            })
+            .catch((error) => {
+                console.error("Error fetching data:", error);
+            });
+    }
+
+    function addSelectEventHandler(selectElement) {
+
+        selectElement.addEventListener("change", function () {
+            const selectedValue = selectElement.value;
+            getAverageSalary(selectedValue);
+        });
+    }
+
+    getAllAvailable();
 });
+
