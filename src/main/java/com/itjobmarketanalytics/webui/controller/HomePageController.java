@@ -1,6 +1,7 @@
 package com.itjobmarketanalytics.webui.controller;
 
 import com.itjobmarketanalytics.webui.dto.UserDto;
+import com.itjobmarketanalytics.webui.dto.analytics.QueryData;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
 import com.itjobmarketanalytics.webui.service.RestApiClientService;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 @Controller
 @Slf4j
@@ -21,9 +24,9 @@ public class HomePageController {
 
     @GetMapping("/")
     public String homeView(Model model, HttpSession session) {
-
         try {
-            model.addAttribute("analyticsQueryData", service.analyticsByQuery());
+            List<QueryData> attributeValue = service.analyticsByQuery();
+            model.addAttribute("analyticsQueryData", attributeValue);
         } catch (RestApiException e){
             model.addAttribute("errorMessage", e.getMessage());
         }
