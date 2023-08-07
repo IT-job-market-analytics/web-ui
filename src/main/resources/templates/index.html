@@ -21,12 +21,15 @@
         <h4>Средняя зарплата</h4>
         <canvas id="averageSalary"></canvas>
       </div>
+      <div class="col-sm-12 col-md-12 mt-5">
+        <h4>Средняя зарплата по запросу</h4>
+        <canvas id="averageSalaryByQuery"></canvas>
+      </div>
     </div>
   </div>
 </section>
 <footer th:replace="~{fragment/footer :: footer}"></footer>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script th:inline="javascript">
   const queries =[];
   const vacancyCount =[];
@@ -39,50 +42,6 @@
   /*[/]*/
   /*]]>*/
 </script>
-
-
-<script>
-  const ctx = document.getElementById('numberOfVacancy');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: queries,
-      datasets: [{
-        label: 'Number of vacancies',
-        data: vacancyCount,
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-
-  const averageSalary = document.getElementById('averageSalary');
-  new Chart(averageSalary, {
-    type: 'bar',
-    data: {
-      labels: queries,
-      datasets: [{
-        label: 'Average Salary',
-        data: averageSalaryData,
-        borderWidth: 1,
-        backgroundColor: ['rgba(75, 192, 192, 0.2)']
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-</script>
-
+<script src="/js/scripts.js"></script>
 </body>
 </html>
