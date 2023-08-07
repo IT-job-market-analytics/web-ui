@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class QueryData {
     private String query;
     private int vacancyCount;
-    private double averageSalary;
+    private double salary;
 }
