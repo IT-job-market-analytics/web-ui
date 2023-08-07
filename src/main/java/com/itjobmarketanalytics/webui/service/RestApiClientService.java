@@ -148,21 +148,13 @@ public class RestApiClientService {
         }
     }
 
-    public List<UserSubscriptionsDto> getAvailableSubscriptions(String token) throws RestApiException {
+    public List<UserSubscriptionsDto> getAvailableSubscriptions() throws RestApiException {
         String url = host + AVAILABLE_SUBSCRIPTIONS;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        if (token != null) {
-            headers.set("Authorization", "Bearer " + token);
-        }
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
         try {
             ResponseEntity<List<UserSubscriptionsDto>> responseEntity = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
-                    entity,
+                    null,
                     new ParameterizedTypeReference<List<UserSubscriptionsDto>>() {
                     });
             log.info("Get all available subscriptions successfully executed");
@@ -276,4 +268,5 @@ public class RestApiClientService {
             throw convertException(e);
         }
     }
+
 }
