@@ -3,6 +3,7 @@ package com.itjobmarketanalytics.webui.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.itjobmarketanalytics.webui.dto.*;
+import com.itjobmarketanalytics.webui.dto.analytics.AverageSalaryData;
 import com.itjobmarketanalytics.webui.dto.analytics.QueryData;
 import com.itjobmarketanalytics.webui.exception.RestApiException;
 import com.itjobmarketanalytics.webui.exception.RestApiUnauthorizedException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class RestApiClientService {
 
 
     private static final String ANALYTICS_BY_QUERY = "/analytics/byQuery";
+    private static final String AVERAGE_SALARY_BY_QUERY = "/analytics/history/";
 
 
     public void signUp(SignUpDto dto) throws RestApiException {
@@ -136,7 +139,8 @@ public class RestApiClientService {
                     url,
                     HttpMethod.GET,
                     entity,
-                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>(){});
+                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>() {
+                    });
             log.info("Get current subscriptions successfully executed");
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -159,7 +163,8 @@ public class RestApiClientService {
                     url,
                     HttpMethod.GET,
                     entity,
-                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>(){});
+                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>() {
+                    });
             log.info("Get all available subscriptions successfully executed");
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -182,7 +187,8 @@ public class RestApiClientService {
                     url,
                     HttpMethod.POST,
                     entity,
-                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>(){});
+                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>() {
+                    });
             log.info("Add subscriptions successfully executed");
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -205,7 +211,8 @@ public class RestApiClientService {
                     url,
                     HttpMethod.DELETE,
                     entity,
-                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>(){});
+                    new ParameterizedTypeReference<List<UserSubscriptionsDto>>() {
+                    });
             log.info("Remove subscriptions successfully executed");
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -246,6 +253,27 @@ public class RestApiClientService {
             return getResponseMessageValue(responseMessage);
         } catch (Exception ex) {
             return defaultMessage;
+        }
+    }
+
+    public List<AverageSalaryData> averageSalaryByQuery(String query, String depth) throws RestApiException {
+        String url = host + AVERAGE_SALARY_BY_QUERY + query;
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromUriString(url)
+                .queryParam("depth", depth);
+        try {
+            ResponseEntity<List<AverageSalaryData>> rateResponse =
+                    restTemplate.exchange(
+                            builder.toUriString(),
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<List<AverageSalaryData>>() {
+                            }
+                    );
+            return rateResponse.getBody();
+        } catch (HttpClientErrorException e) {
+            throw convertException(e);
         }
     }
 }
