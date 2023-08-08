@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     }
 
 
-    function getAllAvailable(){
+    function getAllAvailable() {
         const url = `/analytics/allAvailable`;
 
         fetch(url)
@@ -108,12 +108,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 const selectElement = document.createElement("select");
                 selectElement.setAttribute("id", "querySelect");
 
-                const optionElementDef = document.createElement("option");
-                optionElementDef.setAttribute("value", "");
-                optionElementDef.textContent = "Выбрать...";
-                optionElementDef.setAttribute("disabled", "disabled");
-                optionElementDef.setAttribute("selected", "selected");
-                selectElement.appendChild(optionElementDef);
 
                 data.forEach((item) => {
                     const optionElement = document.createElement("option");
@@ -126,6 +120,10 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 container.appendChild(selectElement);
 
                 addSelectEventHandler(selectElement);
+                if (data.length > 0) {
+                    const firstItem = data[0];
+                    getAverageSalary(firstItem.query);
+                }
 
             })
             .catch((error) => {
