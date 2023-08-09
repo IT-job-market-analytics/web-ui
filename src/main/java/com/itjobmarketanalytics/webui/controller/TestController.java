@@ -63,7 +63,7 @@ public class TestController {
     @GetMapping(value = {"/subscriptions/allAvailable"})
     public void getAllAvailableSubscriptions(@RequestParam String token) throws RestApiException {
         log.info("Test: get all available subscriptions -> start");
-        restApiClientService.getAvailableSubscriptions(token);
+        restApiClientService.getAvailableSubscriptions();
         log.info("Test: get all available subscriptions -> success");
     }
 

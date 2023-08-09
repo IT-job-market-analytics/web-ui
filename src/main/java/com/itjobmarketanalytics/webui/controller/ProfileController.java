@@ -41,7 +41,7 @@ public class ProfileController {
             model.addAttribute("username", userDto.getUsername());
             model.addAttribute("updateUser", new UserUpdateDto(user.getTelegramChatId()));
 
-            List<UserSubscriptionsDto> availableSubscriptions = service.getAvailableSubscriptions(token);
+            List<UserSubscriptionsDto> availableSubscriptions = service.getAvailableSubscriptions();
             List<UserSubscriptionsDto> currentSubscriptions = service.getCurrentSubscriptions(token);
             availableSubscriptions.removeAll(currentSubscriptions);
 
