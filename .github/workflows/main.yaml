@@ -35,7 +35,7 @@ jobs:
           repo: compose-stack
           ref: prod
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          workflow_file_name: main.yml
+          workflow_file_name: deploy-runners.yaml
           client_payload: '{}'
           wait_interval: 11
           trigger_workflow: true
