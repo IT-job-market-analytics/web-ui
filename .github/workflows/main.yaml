@@ -31,7 +31,7 @@ jobs:
       - name: Trigger repo
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
-          owner: IT-job-market-analytics
+          owner: it-job-market-analytics
           repo: compose-stack
           ref: prod
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
