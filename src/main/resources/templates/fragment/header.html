@@ -1,9 +1,9 @@
 <header th:fragment="header (isLoggedIn, username)">
     <nav class="navbar bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">IT Job</a>
+            <a class="navbar-brand" href="/">IT jobs market analytics</a>
             <div th:if="${isLoggedIn}">
-                <a class="btn btn-outline" href="/profile">Hi, <span th:text="${username}"/></a>
+                <a class="btn btn-outline" href="/profile">Profile</a>
                 <a class="btn btn-outline" href="/logout">Logout</a>
             </div>
             <div th:unless="${isLoggedIn}">
