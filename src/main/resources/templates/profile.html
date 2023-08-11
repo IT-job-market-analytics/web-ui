@@ -19,6 +19,13 @@
                     <input type="text" class="form-control mb-3" th:value="${username}" disabled>
                     <input type="number" th:value="${telegramChatId}" max="9223372036854775807" class="form-control mb-3" placeholder="Telegram chat id" th:field="*{telegramChatId}">
                     <div th:if="${updateMessage}" th:text="${updateMessage}" th:class="${'alert p-1 ps-2 mt-1 ' + updateAlertClass}"/>
+                    <div class="mb-4">
+                        <i>
+                            To receive Telegram notifications about new vacancies,
+                            contact <a href="https://t.me/it_jobs_notifier_bot">@it_jobs_notifier_bot</a>
+                            and paste your chat id here
+                        </i>
+                    </div>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
